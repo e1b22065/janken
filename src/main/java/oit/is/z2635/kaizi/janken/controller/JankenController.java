@@ -2,26 +2,32 @@ package oit.is.z2635.kaizi.janken.controller;
 
 import java.security.Principal;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import oit.is.z2635.kaizi.janken.model.Entry;
 
 @Controller
 public class JankenController {
+
+  @Autowired
+  private Entry room;
+
   /**
-   * POSTを受け付ける場合は@PostMappingを利用する /sample25へのPOSTを受け付けて，FormParamで指定された変数(input
-   * name)をsample25()メソッドの引数として受け取ることができる
    *
-   * @param username
-   * @param model
+   * @param model Thymeleafにわたすデータを保持するオブジェクト
+   * @param prin  ログインユーザ情報が保持されるオブジェクト
    * @return
    */
-  @PostMapping("/janken")
+  @GetMapping("/janken")
   public String sample(ModelMap model, Principal prin) {
-    model.addAttribute("username", prin.getName());
-    return "Janken.html";
+    String loginUser = prin.getName();
+    this.room.addUser(loginUser);
+    model.addAttribute("room", this.room);
+    return "janken.html";
   }
 
   /**
@@ -49,5 +55,4 @@ public class JankenController {
     return "janken.html";
 
   }
-
 }
