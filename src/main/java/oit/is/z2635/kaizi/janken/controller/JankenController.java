@@ -1,5 +1,7 @@
 package oit.is.z2635.kaizi.janken.controller;
 
+import java.security.Principal;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,8 +19,8 @@ public class JankenController {
    * @return
    */
   @PostMapping("/janken")
-  public String sample(@RequestParam String username, ModelMap model) {
-    model.addAttribute("username", username);
+  public String sample(ModelMap model, Principal prin) {
+    model.addAttribute("username", prin.getName());
     return "Janken.html";
   }
 
