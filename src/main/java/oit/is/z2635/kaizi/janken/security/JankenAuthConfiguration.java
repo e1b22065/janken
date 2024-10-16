@@ -48,16 +48,16 @@ public class JankenAuthConfiguration {
   @Bean
   public InMemoryUserDetailsManager userDetailsService() {
 
-    // ユーザ名，パスワード，ロールを指定してbuildする
     // このときパスワードはBCryptでハッシュ化されているため，{bcrypt}とつける
-    // ハッシュ化せずに平文でパスワードを指定する場合は{noop}をつける
-    // user1/p@ss,user2/p@ss,admin/p@ss
+    // user1/isdev24,user2/isdev24,ほんだ/isdev24
     UserDetails user1 = User.withUsername("user1")
-        .password("{bcrypt}$2y$05$aQ64RQmFRSaUyKdQ5Cgamez2RoX03s3dDpi3GUfovyj75657Kkaru").roles("USER").build();
+        .password("{bcrypt}$2y$05$iHiI002AMrHj5XxMiIQ2iecj5ky29XXs0Bn2qEkGrw0CUJwN6pkJW").roles("USER").build();
     UserDetails user2 = User.withUsername("user2")
-        .password("{bcrypt}$2y$05$cxH9YUDlk89vIf/1q9fkM.awDVP9CFjWnS1zHxIhslm0yF.FMxMzG").roles("USER").build();
+        .password("{bcrypt}$2y$05$cLEDitfr2yyATDGWR0vNu.zwnl2LhGobpKk2tXDJVTVhrc/EkKQ3i").roles("USER").build();
+    UserDetails user3 = User.withUsername("ほんだ")
+        .password("{bcrypt}$2y$05$djbhvu6NjZeMVjdY01j90eJ5WisSdWts5hvjotd1ChhVrykcWkrGC").roles("USER").build();
 
     // 生成したユーザをImMemoryUserDetailsManagerに渡す（いくつでも良い）
-    return new InMemoryUserDetailsManager(user1, user2);
+    return new InMemoryUserDetailsManager(user1, user2, user3);
   }
 }
