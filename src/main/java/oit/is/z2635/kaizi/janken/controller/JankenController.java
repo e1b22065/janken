@@ -1,5 +1,6 @@
 package oit.is.z2635.kaizi.janken.controller;
 
+import java.security.Principal;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +30,21 @@ public class JankenController {
    * @return
    */
   @GetMapping("/janken")
-  public String sample(ModelMap model) {
+  public String sample2(ModelMap model) {
     ArrayList<User> user = UserMapper.selectAllUsers();
     model.addAttribute("users", user);
     ArrayList<Match> match = MatchMapper.selectAllByMatch();
     model.addAttribute("matchs", match);
     return "janken.html";
+  }
+
+  @GetMapping("/match")
+  public String sample4(@RequestParam Integer id, Principal prin, ModelMap model) {
+    String loginUser = prin.getName();
+    model.addAttribute("loginUser", loginUser);
+    String userName = UserMapper.selectById(id);
+    model.addAttribute("userName", userName);
+    return "match.html";
   }
 
   /**
@@ -57,9 +67,7 @@ public class JankenController {
     } else {
       model.addAttribute("Result", "You Win!");
     }
-    // ModelMap型変数のmodelにtasuResult2という名前の変数で，tasuResultの値を登録する．
-    // ここで値を登録するとthymeleafが受け取り，htmlで処理することができるようになる
-    return "janken.html";
+    return "match.html";
 
   }
 }
