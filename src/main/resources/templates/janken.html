@@ -8,16 +8,33 @@
 
 <body>
   <a href="/logout">ログアウト</a>
+
   <h1>Janken GAME!</h1>
+
   <div>
     Hi <span sec:authentication="name"></span>
   </div>
+
   <div th:if="${users}">
     <h1>エントリー</h1>
     <ul>
       <li th:each="users,stat:${users}">[[${users.name}]]</li>
     </ul>
   </div>
+
+  <h1>試合結果</h1>
+
+  <p th:if="${matchs}">
+  <div th:each="match,stat:${matchs}">
+    <tr>
+      <td>id:[[${match.id}]]</td>
+      <td>user1:[[${match.user1}]]</td>
+      <td>user2:[[${match.user2}]]</td>
+      <td>user1の手:[[${match.user1Hand}]]</td>
+      <td>user2の手:[[${match.user2Hand}]]</td>
+    </tr>
+  </div>
+  </br>
 
   <a href="/jankengame?hand=Gu">ぐー</a>
   <a href="/jankengame?hand=Tyoki">ちょき</a>
