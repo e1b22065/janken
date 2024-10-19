@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.springframework.org/schema/security">
+
+<head>
+  <meta charset="utf-8">
+  <title>Match</title>
+</head>
+
+<body>
+  <a href="/logout">ログアウト</a>
+
+  <h1>Match</h1>
+
+  <h1>
+    ほんだ V.S. CPU
+  </h1>
+
+  <a href="/jankengame?hand=Gu">ぐー</a>
+  <a href="/jankengame?hand=Tyoki">ちょき</a>
+  <a href="/jankengame?hand=Pa">ぱー</a><br>
+  <div th:if="${Result}">
+    あなたの手 [[${hand}]]<br>
+    相手の手 Gu<br>
+    結果 [[${Result}]]<br>
+  </div>
+
+  <a href="/janken">戻る</a>
+
+</body>
+
+</html>
