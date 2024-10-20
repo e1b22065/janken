@@ -15,9 +15,12 @@
     ほんだ V.S. CPU
   </h1>
 
-  <a href="/jankengame?hand=Gu">ぐー</a>
-  <a href="/jankengame?hand=Tyoki">ちょき</a>
-  <a href="/jankengame?hand=Pa">ぱー</a><br>
+  <div th:if="${user}">
+    <a th:href="@{/fight(id=${user.id}, hand='Gu')}">ぐー</a>
+    <a th:href="@{/fight(id=${user.id}, hand='Choki')}">ちょき</a>
+    <a th:href="@{/fight(id=${user.id}, hand='Pa')}">ぱー</a><br>
+  </div>
+
   <div th:if="${Result}">
     あなたの手 [[${hand}]]<br>
     相手の手 Gu<br>

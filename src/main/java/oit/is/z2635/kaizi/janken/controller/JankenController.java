@@ -30,7 +30,7 @@ public class JankenController {
    * @return
    */
   @GetMapping("/janken")
-  public String sample2(ModelMap model) {
+  public String sample(ModelMap model) {
     ArrayList<User> user = UserMapper.selectAllUsers();
     model.addAttribute("users", user);
     ArrayList<Match> match = MatchMapper.selectAllByMatch();
@@ -39,11 +39,9 @@ public class JankenController {
   }
 
   @GetMapping("/match")
-  public String sample4(@RequestParam Integer id, Principal prin, ModelMap model) {
-    String loginUser = prin.getName();
-    model.addAttribute("loginUser", loginUser);
-    String userName = UserMapper.selectById(id);
-    model.addAttribute("userName", userName);
+  public String match(@RequestParam Integer id, ModelMap model) {
+    User user = UserMapper.selectByAllid(id);
+    model.addAttribute("user", user);
     return "match.html";
   }
 
@@ -67,7 +65,40 @@ public class JankenController {
     } else {
       model.addAttribute("Result", "You Win!");
     }
-    return "match.html";
+    // ModelMap型変数のmodelにtasuResult2という名前の変数で，tasuResultの値を登録する．
+    // ここで値を登録するとthymeleafが受け取り，htmlで処理することができるようになる
+    return "janken.html";
+  }
 
+  @GetMapping("/fight")
+  public String jankengame(@RequestParam Integer id, @RequestParam String hand, ModelMap model, Principal prin) {
+    String Gu = "Gu";
+    String Tyoki = "Tyoki";
+    String loginUser = prin.getName();
+    int player_id = UserMapper.selectByName(loginUser);
+
+    User user = UserMapper.selectByAllid(id);
+    model.addAttribute("user", user);
+
+    ArrayList<User> users = UserMapper.selectAllUsers();
+    model.addAttribute("users", users);
+
+    Match match_fight = new Match();
+    match_fight.setUser1(player_id);
+    match_fight.setUser2(id);
+    match_fight.setUser1Hand(hand);
+    match_fight.setUser2Hand(Gu);
+    MatchMapper.insertMatch(match_fight);
+
+    model.addAttribute("hand", hand);
+    if (hand.equals(Gu)) {
+      model.addAttribute("Result", "Draw");
+    } else if (hand.equals(Tyoki)) {
+      model.addAttribute("Result", "You Lose");
+    } else {
+      model.addAttribute("Result", "You Win!");
+    }
+
+    return "match.html";
   }
 }
