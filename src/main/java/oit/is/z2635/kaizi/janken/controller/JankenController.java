@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import oit.is.z2635.kaizi.janken.model.User;
 import oit.is.z2635.kaizi.janken.model.UserMapper;
@@ -15,6 +16,7 @@ import oit.is.z2635.kaizi.janken.model.Match;
 import oit.is.z2635.kaizi.janken.model.MatchMapper;
 import oit.is.z2635.kaizi.janken.model.MatchInfo;
 import oit.is.z2635.kaizi.janken.model.MatchInfoMapper;
+import oit.is.z2635.kaizi.janken.service.AsyncKekka;
 
 @Controller
 public class JankenController {
@@ -28,6 +30,9 @@ public class JankenController {
   @Autowired
   MatchInfoMapper MatchInfoMapper;
 
+  @Autowired
+  AsyncKekka Kekka;
+
   /**
    *
    * @param model Thymeleafにわたすデータを保持するオブジェクト
@@ -38,8 +43,13 @@ public class JankenController {
   public String sample(ModelMap model) {
     ArrayList<User> user = UserMapper.selectAllUsers();
     model.addAttribute("users", user);
+
     ArrayList<Match> match = MatchMapper.selectAllByMatch();
     model.addAttribute("matchs", match);
+
+    ArrayList<MatchInfo> matchsInfo = MatchInfoMapper.selectAllByIsActive();
+    model.addAttribute("matchsInfo", matchsInfo);
+
     return "janken.html";
   }
 
@@ -79,10 +89,15 @@ public class JankenController {
 
   @GetMapping("/fight")
   public String jankengame(@RequestParam Integer id, @RequestParam String hand, ModelMap model, Principal prin) {
+    int flag = 0;
     String Gu = "Gu";
     String Tyoki = "Tyoki";
     String loginUser = prin.getName();
     int player_id = UserMapper.selectByName(loginUser);
+    Match match_tmp = new Match();
+    MatchInfo matchInfo_fight = new MatchInfo();
+    Match match_fight = new Match();
+    ArrayList<Match> match = MatchMapper.selectAllByMatch();
 
     User user = UserMapper.selectByAllid(id);
     model.addAttribute("user", user);
@@ -92,19 +107,35 @@ public class JankenController {
 
     model.addAttribute("loginUser", loginUser);
 
-    Match match_fight = new Match();
-    match_fight.setUser1(player_id);
-    match_fight.setUser2(id);
-    match_fight.setUser1Hand(hand);
-    match_fight.setUser2Hand(Gu);
-    MatchMapper.insertMatch(match_fight);
+    ArrayList<MatchInfo> matchInfo = MatchInfoMapper.selectAllByMatchInfo();
+    for (int i = 0; i < matchInfo.size(); i++) {
+      MatchInfo matchinfo = matchInfo.get(i);
+      if (matchinfo.getIsActive() && matchinfo.getUser2() == player_id) {
+        flag = 1;
+        matchInfo_fight.setId(matchinfo.getId());
+        match_tmp.setUser2Hand(matchinfo.getUser1Hand());
+      }
+    }
 
-    MatchInfo matchInfo_fight = new MatchInfo();
-    matchInfo_fight.setUser1(player_id);
-    matchInfo_fight.setUser2(id);
-    matchInfo_fight.setUser1Hand(hand);
-    matchInfo_fight.setIsActive(true);
-    MatchInfoMapper.insertMatchInfo(matchInfo_fight);
+    if (flag == 0) {
+      matchInfo_fight.setUser1(player_id);
+      matchInfo_fight.setUser2(id);
+      matchInfo_fight.setUser1Hand(hand);
+      matchInfo_fight.setIsActive(true);
+      MatchInfoMapper.insertMatchInfo(matchInfo_fight);
+    } else {
+      match_fight.setUser1(player_id);
+      match_fight.setUser2(id);
+      match_fight.setUser1Hand(hand);
+      match_fight.setUser2Hand(match_tmp.getUser2Hand());
+      match_fight.setIsActive(true);
+      this.Kekka.syncActiveMatch(match_fight);
+      MatchInfo endmatchinfo = MatchInfoMapper.selectById(matchInfo_fight.getId());
+      endmatchinfo.setIsActive(false);
+      MatchInfoMapper.updateById(endmatchinfo);
+    }
+
+    model.addAttribute("match", match);
 
     model.addAttribute("hand", hand);
     if (hand.equals(Gu)) {
@@ -116,5 +147,12 @@ public class JankenController {
     }
 
     return "wait.html";
+  }
+
+  @GetMapping("/Update")
+  public SseEmitter Update() {
+    final SseEmitter sseEmitter = new SseEmitter();
+    this.Kekka.asyncShowMatchList(sseEmitter);
+    return sseEmitter;
   }
 }
