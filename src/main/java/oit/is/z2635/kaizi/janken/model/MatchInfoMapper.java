@@ -12,6 +12,9 @@ public interface MatchInfoMapper {
   @Select("SELECT * from matchinfo")
   ArrayList<Match> selectAllByMatchInfo();
 
+  @Select("SELECT * from matchinfo where true = isActive")
+  ArrayList<MatchInfo> selectAllByIsActive();
+
   @Insert("INSERT INTO MatchInfo (user1, user2, user1Hand, isActive) VALUES (#{user1},#{user2},#{user1Hand},#{isActive});")
   @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
   void insertMatchInfo(MatchInfo MatchInfo);
